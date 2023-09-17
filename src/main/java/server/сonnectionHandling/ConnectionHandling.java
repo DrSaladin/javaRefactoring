@@ -29,7 +29,6 @@ public class ConnectionHandling {
     "/events",
     "/events.js"
   );
-  RequestInfo currentRequestInfo;
   /* List of methods */
   enum RequestMethod {
     GET,
@@ -101,6 +100,7 @@ public class ConnectionHandling {
   }
 
   private void handleRequests(String bufferedReadeLine, BufferedReader in) {
+    RequestInfo currentRequestInfo;
     try {
       RequestMethod method = RequestMethod.valueOf(getMethodType(bufferedReadeLine));
       if (method == RequestMethod.GET) {
