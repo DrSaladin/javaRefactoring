@@ -36,7 +36,7 @@ public class ConnectionHandling {
     PUT,
     DELETE
   }
-  private String path = null;
+//  private String path = null;
   public ConnectionHandling() {}
 
   /* Get request info, including path and params */
@@ -99,21 +99,19 @@ public class ConnectionHandling {
     return params;
   }
 
-  private void handleRequests(String bufferedReadeLine, BufferedReader in) {
-    RequestInfo currentRequestInfo;
+  private String handleRequests(String bufferedReadeLine, BufferedReader in) {
+    RequestInfo currentRequestInfo = null;
+
     try {
       RequestMethod method = RequestMethod.valueOf(getMethodType(bufferedReadeLine));
-      if (method == RequestMethod.GET) {
-        currentRequestInfo = getCurrentRequestInfo(bufferedReadeLine);
-        path = currentRequestInfo.getRequestPath();
-      } else if (method == RequestMethod.POST) {
-        currentRequestInfo = getCurrentRequestInfo(bufferedReadeLine);
+      currentRequestInfo = getCurrentRequestInfo(bufferedReadeLine);
+      if (method == RequestMethod.POST) {
         currentRequestInfo.setParamsList(getBodyData(in));
-        path = currentRequestInfo.getRequestPath();
       }
     } catch (IllegalArgumentException | IOException e) {
       throw new IllegalArgumentException(e);
     }
+    return currentRequestInfo.getRequestPath();
   }
 
   private void handleClassicRequest(Path filePath, BufferedOutputStream out, String mimeType) throws IOException {
@@ -153,10 +151,11 @@ public class ConnectionHandling {
         final var out = new BufferedOutputStream(clientSocket.getOutputStream());
       ) {
         String bufferedReadeLine = in.readLine();
+        String path = null;
 
         if(bufferedReadeLine.length() == 0) return;
 
-        handleRequests(bufferedReadeLine, in);
+        path = handleRequests(bufferedReadeLine, in);
 
         if(!validPaths.contains(path)) {
           handleWrongPath(out);
